@@ -29,12 +29,20 @@ from megatron.core.parallel_state import (
 from megatron.core.pipeline_parallel import get_forward_backward_func
 from megatron.core.utils import StragglerDetector
 
+<<<<<<< HEAD
 from nemo_rl.algorithms.loss import (
     SequencePackingLossWrapper,
     prepare_loss_input,
     wrap_loss_fn_with_input_preparation,
 )
 from nemo_rl.algorithms.loss.interfaces import LossFunction
+=======
+from nemo_rl.algorithms.loss_functions import (
+    LossFunction,
+    SequencePackingFusionLossWrapper,
+    SequencePackingLossWrapper,
+)
+>>>>>>> 371c3084 (Compute rolled target once in fusion path)
 from nemo_rl.distributed.batched_data_dict import BatchedDataDict
 from nemo_rl.distributed.model_utils import (
     allgather_cp_sharded_tensor,
