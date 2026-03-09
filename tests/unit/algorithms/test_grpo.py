@@ -1642,12 +1642,10 @@ def test_grpo_advantage_estimator_zero_std():
         [2.0, 2.0, 1.0, 3.0]
     )  # prompt 0: std=0; prompt 1: std=sqrt(2)
     mask = torch.ones(4, 5)
-    repeated_batch = {"_input_ids_for_baseline": prompt_ids, "total_reward": rewards}
 
     result = estimator.compute_advantage(
         prompt_ids=prompt_ids,
         rewards=rewards,
-        repeated_batch=repeated_batch,
         mask=mask,
     )
 
@@ -1679,12 +1677,10 @@ def test_grpo_advantage_estimator_tensor_shapes():
     prompt_ids = torch.tensor([[0], [0]])
     rewards = torch.tensor([1.0, 3.0])  # mean=2, std=sqrt(2) with Bessel
     mask = torch.ones(2, 3)
-    repeated_batch = {"_input_ids_for_baseline": prompt_ids, "total_reward": rewards}
 
     result = estimator.compute_advantage(
         prompt_ids=prompt_ids,
         rewards=rewards,
-        repeated_batch=repeated_batch,
         mask=mask,
     )
     assert result.shape == (2, 3)
@@ -1699,12 +1695,10 @@ def test_grpo_advantage_estimator_tensor_shapes():
     prompt_ids = torch.tensor([[0]] * 10)
     rewards = torch.arange(10, dtype=torch.float32)  # 0, 1, 2, ..., 9
     mask = torch.ones(10, 5)
-    repeated_batch = {"_input_ids_for_baseline": prompt_ids, "total_reward": rewards}
 
     result = estimator.compute_advantage(
         prompt_ids=prompt_ids,
         rewards=rewards,
-        repeated_batch=repeated_batch,
         mask=mask,
     )
     assert result.shape == (10, 5)
@@ -1730,12 +1724,10 @@ def test_grpo_advantage_estimator_negative_advantages():
     prompt_ids = torch.tensor([[0], [0], [0]])
     rewards = torch.tensor([0.0, 2.0, 4.0])  # mean=2, deviations: -2, 0, +2
     mask = torch.ones(3, 4)
-    repeated_batch = {"_input_ids_for_baseline": prompt_ids, "total_reward": rewards}
 
     result = estimator.compute_advantage(
         prompt_ids=prompt_ids,
         rewards=rewards,
-        repeated_batch=repeated_batch,
         mask=mask,
     )
 
@@ -1766,12 +1758,10 @@ def test_grpo_advantage_estimator_zero_std_and_zero_advantage():
     prompt_ids = torch.tensor([[0], [0], [0], [0]])
     rewards = torch.tensor([5.0, 5.0, 5.0, 5.0])  # all same
     mask = torch.ones(4, 3)
-    repeated_batch = {"_input_ids_for_baseline": prompt_ids, "total_reward": rewards}
 
     result = estimator.compute_advantage(
         prompt_ids=prompt_ids,
         rewards=rewards,
-        repeated_batch=repeated_batch,
         mask=mask,
     )
 
@@ -1798,12 +1788,10 @@ def test_grpo_advantage_estimator_small_nonzero_std():
     prompt_ids = torch.tensor([[0], [0]])
     rewards = torch.tensor([1.0, 1.01])  # small but detectable difference
     mask = torch.ones(2, 3)
-    repeated_batch = {"_input_ids_for_baseline": prompt_ids, "total_reward": rewards}
 
     result = estimator.compute_advantage(
         prompt_ids=prompt_ids,
         rewards=rewards,
-        repeated_batch=repeated_batch,
         mask=mask,
     )
 
@@ -1844,12 +1832,10 @@ def test_reinforce_plus_plus_global_normalization():
     )  # Shape (4, 1) for unique prompt matching
     rewards = torch.tensor([0.0, 1.0, 2.0, 3.0])  # mean=1.5
     mask = torch.ones(4, 5)
-    repeated_batch = {"_input_ids_for_baseline": prompt_ids, "total_reward": rewards}
 
     result = estimator.compute_advantage(
         prompt_ids=prompt_ids,
         rewards=rewards,
-        repeated_batch=repeated_batch,
         mask=mask,
     )
 
