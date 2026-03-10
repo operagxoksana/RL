@@ -214,6 +214,18 @@ class RayWorkerBuilder:
         self.args = args
         self.kwargs = kwargs
 
+        # Use the ray_actor_class_fqn_for_env if provided, otherwise use the ray_actor_class_fqn.
+        # This is useful when using worker extension classes.
+        self.ray_actor_class_fqn_for_env = ray_actor_class_fqn
+        if (
+            "ray_actor_class_fqn_for_env" in kwargs
+            and kwargs["ray_actor_class_fqn_for_env"] is not None
+        ):
+            self.ray_actor_class_fqn_for_env = kwargs["ray_actor_class_fqn_for_env"]
+
+        if "ray_actor_class_fqn_for_env" in kwargs:
+            del self.kwargs["ray_actor_class_fqn_for_env"]
+
     def create_worker_async(
         self,
         placement_group: PlacementGroup,
@@ -436,7 +448,7 @@ class RayWorkerGroup:
 
         # Get the python environment for the actor
         actor_python_env = get_actor_python_env(
-            remote_worker_builder.ray_actor_class_fqn
+            remote_worker_builder.ray_actor_class_fqn_for_env
         )
         if actor_python_env.startswith("uv"):
             # If the py_executable begins with uv it signals that we need to create a
@@ -445,7 +457,7 @@ class RayWorkerGroup:
             #  NEMO_RL_VENV_DIR and defaults to $GIT_ROOT/venvs/.
             py_executable = create_local_venv_on_each_node(
                 py_executable=actor_python_env,
-                venv_name=remote_worker_builder.ray_actor_class_fqn,
+                venv_name=remote_worker_builder.ray_actor_class_fqn_for_env,
             )
         else:
             py_executable = actor_python_env

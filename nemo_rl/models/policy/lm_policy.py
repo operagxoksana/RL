@@ -78,6 +78,7 @@ class Policy(ColocatablePolicyInterface, GenerationInterface):
             optimizer_path = os.path.abspath(optimizer_path)
 
         worker_builder_cls: str
+        worker_builder_cls_for_env: Optional[str] = None
         tp_size = 1
         pp_size = 1
         cp_size = 1
@@ -137,6 +138,7 @@ class Policy(ColocatablePolicyInterface, GenerationInterface):
             print(
                 f"Using worker extension class: {worker_extension_cls}, please make sure it is a subclass of {worker_builder_cls}."
             )
+            worker_builder_cls_for_env = worker_builder_cls
             worker_builder_cls = worker_extension_cls
 
         # Validate world_size compatibility with parallelism configuration
@@ -206,6 +208,7 @@ class Policy(ColocatablePolicyInterface, GenerationInterface):
             init_reference_model=init_reference_model,
             worker_sharding_annotations=self.sharding_annotations,
             pre_init_communication_queue=pre_init_queue,
+            ray_actor_class_fqn_for_env=worker_builder_cls_for_env,
         )
 
         if cluster._sorted_bundle_indices is not None:
