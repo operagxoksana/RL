@@ -29,20 +29,14 @@ from megatron.core.parallel_state import (
 from megatron.core.pipeline_parallel import get_forward_backward_func
 from megatron.core.utils import StragglerDetector
 
-<<<<<<< HEAD
 from nemo_rl.algorithms.loss import (
+    SequencePackingFusionLossWrapper,
     SequencePackingLossWrapper,
     prepare_loss_input,
+    prepare_packed_loss_input,
     wrap_loss_fn_with_input_preparation,
 )
 from nemo_rl.algorithms.loss.interfaces import LossFunction
-=======
-from nemo_rl.algorithms.loss_functions import (
-    LossFunction,
-    SequencePackingFusionLossWrapper,
-    SequencePackingLossWrapper,
-)
->>>>>>> 371c3084 (Compute rolled target once in fusion path)
 from nemo_rl.distributed.batched_data_dict import BatchedDataDict
 from nemo_rl.distributed.model_utils import (
     allgather_cp_sharded_tensor,
@@ -318,9 +312,19 @@ class LossPostProcessor:
         # wrap loss function with loss input preparation
         pack_sequences = self.cfg["sequence_packing"]["enabled"]
         if pack_sequences and packed_seq_params is not None:
-            loss_fn_wrapped = SequencePackingLossWrapper(
+            fuse_loss = self.cfg.get("sequence_packing", {}).get(
+                "fuse_loss", False
+            )
+            if fuse_loss:
+                wrapper_cls = SequencePackingFusionLossWrapper
+                prepare_fn = prepare_packed_loss_input
+            else:
+                wrapper_cls = SequencePackingLossWrapper
+                prepare_fn = prepare_loss_input
+            
+            loss_fn_wrapped = wrapper_cls(
                 loss_fn=self.loss_fn,
-                prepare_fn=prepare_loss_input,
+                prepare_fn=prepare_fn,
                 cu_seqlens_q=packed_seq_params.cu_seqlens_q,
                 cu_seqlens_q_padded=packed_seq_params.cu_seqlens_q_padded,
                 vocab_parallel_rank=get_tensor_model_parallel_rank(),
